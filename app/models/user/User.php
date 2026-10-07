@@ -19,14 +19,18 @@ class User
         $this->passwordHash = $password;
     }
 
-    public static function register(?int $id, string $name, String $email, String $password) : self
+    public static function register(?int $id, string $name, String $email, String $plainPassword) : self
     {
-        return new self($id, $name, $email, $password);
+        if (strlen($plainPassword) < 8) {
+            throw new InvalidArgumentException("A senha não pode ter menos de 8 caracteres");
+        }
+
+        return new self($id, $name, $email, password_hash($plainPassword, PASSWORD_ARGON2ID));
     }
 
-    public static function reconstitute(int $id, string $name, String $email, String $password) : self
+    public static function reconstitute(int $id, string $name, String $email, String $passwordHash) : self
     {
-        return new self($id, $name, $email, $password);
+        return new self($id, $name, $email, $passwordHash);
     }
 
     public function verifyPassword(string $plainPassword) : bool
